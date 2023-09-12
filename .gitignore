@@ -1,0 +1,61 @@
+# Prerequisites
+*.d
+/build
+build/**
+
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# CMake generated files
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# Build directories
+out/
+build/
+[Bb][Uu][Ii][Ll][Dd]/
+
+# VS Code configuration
+.vscode/
+.vscode/*
+
+!.vscode/settings.json   # This excludes settings.json from being ignored if you want to share it
+!.vscode/keybindings.json   # Same for keybindings.json
+!.vscode/*.json
