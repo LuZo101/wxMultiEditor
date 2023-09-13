@@ -1,6 +1,8 @@
 #ifndef MAINFRAME_HPP
 #define MAINFRAME_HPP
+#include <wx/wfstream.h>
 
+#include <wx/filedlg.h>
 #include <wx/wx.h>
 #include <cstdint>
 #include <vector>
@@ -21,8 +23,11 @@ private:
 
     void CreateControls();
     void BindEvtHandler();
+    void OnSave(wxCommandEvent &WXUNUSED(event));
+    void OnAbout(wxCommandEvent &evt);
+    void OnClose(wxCommandEvent &evt);
+    void ShortcutSetup();
     void SetupLayout();
-
     void SetupMenuBar();
 
 public:
