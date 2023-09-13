@@ -14,7 +14,8 @@
 2. Navigate to your desired directory using the `cd` command.
 3. Clone the repository:
 ```shell
-git clone git@github.com:LuZo101/HexMultiEditor.git```
+git clone git@github.com:LuZo101/HexMultiEditor.git
+```
 
 
 ### Build the Project
@@ -22,24 +23,29 @@ git clone git@github.com:LuZo101/HexMultiEditor.git```
 4. Navigate to the project directory:
 
 ```shell
-cd HexMultiEditor```
+cd HexMultiEditor
+```
 
 5. Create a build directory and navigate into it:
 
 ```shell
-mkdir build && cd build```
+mkdir build && cd build
+```
 
 6. Run `cmake` to generate the build files:
 
 ```shell
-cmake ..```
+cmake ..
+```
 
 7. Build the project:
 ```shell
-cmake --build .```
+cmake --build .
+```
 8. Now, you should have the `MULTIEDITOR` executable ready in the `build` directory, execute it with:
 ```shell
-./MULTIEDITOR```
+./MULTIEDITOR
+```
 
 
 
