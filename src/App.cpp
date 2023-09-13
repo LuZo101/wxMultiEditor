@@ -1,4 +1,4 @@
-#include "../include/App.hpp"
+#include "App.hpp"
 
 bool App::OnInit()
 {

@@ -1,5 +1,5 @@
-#include "../include/MainFrame.hpp"
-#include "../include/Logic.hpp"
+#include "MainFrame.hpp"
+#include "Logic.hpp"
 #include <wx/filedlg.h>
 enum ID
 {

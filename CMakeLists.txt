@@ -1,9 +1,11 @@
 # Set the minimum required version of CMake
-#if there is a versionerror just hit cmake --version in your terminal
 cmake_minimum_required(VERSION 3.27.2)
 
 # Define the project name
 project(MULTIEDITOR)
+
+# Add the include directory for header files
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # Find the necessary wxWidgets packages
 find_package(wxWidgets REQUIRED gl core base OPTIONAL_COMPONENTS net)

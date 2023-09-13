@@ -1,7 +1,6 @@
 #ifndef MAINFRAME_HPP
 #define MAINFRAME_HPP
 #include <wx/wfstream.h>
-
 #include <wx/filedlg.h>
 #include <wx/wx.h>
 #include <cstdint>
