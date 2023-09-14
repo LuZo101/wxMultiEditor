@@ -21,13 +21,27 @@ private:
     wxBoxSizer *sizerFrame;
 
     void CreateControls();
-    void BindEvtHandler();
-    void OnSave(wxCommandEvent &WXUNUSED(event));
-    void OnAbout(wxCommandEvent &evt);
-    void OnClose(wxCommandEvent &evt);
     void ShortcutSetup();
     void SetupLayout();
     void SetupMenuBar();
+    void BindEvtHandler();
+
+    void OnSave(wxCommandEvent &WXUNUSED(event));
+    void OnAbout(wxCommandEvent &evt);
+    void OnQuit(wxCommandEvent &evt);
+
+    void OnTextCtrlAsciiEnter(wxCommandEvent &event);
+    void OnTextCtrlHexEnter(wxCommandEvent &event);
+
+    wxString StringToHex(const wxString &input);
+    wxString HexToString(const wxString &input);
+
+    wxString lastValidHex;
+    bool isUpdatingAscii = false;
+    bool isUpdatingHex= false;
+
+    bool IsASCIIInput(wxChar c);
+    bool IsHexInput(const wxString &input);
 
 public:
     MainFrame(const wxString &title);
