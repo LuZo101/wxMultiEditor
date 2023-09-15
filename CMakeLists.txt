@@ -1,5 +1,5 @@
 # Set the minimum required version of CMake
-cmake_minimum_required(VERSION 3.27.2)
+cmake_minimum_required(VERSION 3.0)
 
 # Define the project name
 project(MULTIEDITOR)
@@ -42,6 +42,9 @@ add_executable(tests_exe ${TEST_SOURCE_FILES})
 
 # Include the Catch2 amalgamated version
 target_include_directories(tests_exe PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Link tests_exe with the wxWidgets libraries
+target_link_libraries(tests_exe ${wxWidgets_LIBRARIES})
 
 # Name the test and specify which executable to run for it
 add_test(NAME UnitTests COMMAND tests_exe)

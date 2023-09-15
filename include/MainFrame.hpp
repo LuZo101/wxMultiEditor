@@ -1,11 +1,24 @@
 #ifndef MAINFRAME_HPP
 #define MAINFRAME_HPP
+
 #include <wx/wfstream.h>
 #include <wx/filedlg.h>
 #include <wx/wx.h>
 #include <cstdint>
 #include <vector>
 #include <fstream>
+#include <wx/txtstrm.h>
+
+enum ID
+{
+    PANEL = 3,
+    INPUT_ASCII,
+    INPUT_HEX,
+    MBAR_SAVE,
+    MBAR_ABOUT,
+    MBAR_QUIT
+};
+
 class MainFrame : public wxFrame
 {
 private:
@@ -20,6 +33,9 @@ private:
     wxTextCtrl *inputHEX;
     wxBoxSizer *sizerFrame;
 
+    wxComboBox *conversionFrom;
+    wxComboBox *conversionTo;
+
     void CreateControls();
     void ShortcutSetup();
     void SetupLayout();
@@ -33,15 +49,10 @@ private:
     void OnTextCtrlAsciiEnter(wxCommandEvent &event);
     void OnTextCtrlHexEnter(wxCommandEvent &event);
 
-    wxString StringToHex(const wxString &input);
-    wxString HexToString(const wxString &input);
-
-    wxString lastValidHex;
+    wxString lastValidASCI;
+    wxString lastValidHEX;
     bool isUpdatingAscii = false;
-    bool isUpdatingHex= false;
-
-    bool IsASCIIInput(wxChar c);
-    bool IsHexInput(const wxString &input);
+    bool isUpdatingHex = false;
 
 public:
     MainFrame(const wxString &title);
