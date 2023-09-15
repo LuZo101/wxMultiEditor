@@ -1,61 +1,68 @@
 #ifndef MAINFRAME_HPP
 #define MAINFRAME_HPP
 
-#include <wx/wfstream.h>
-#include <wx/filedlg.h>
 #include <wx/wx.h>
-#include <cstdint>
-#include <vector>
-#include <fstream>
-#include <wx/txtstrm.h>
-
-enum ID
-{
-    PANEL = 3,
-    INPUT_ASCII,
-    INPUT_HEX,
-    MBAR_SAVE,
-    MBAR_ABOUT,
-    MBAR_QUIT
-};
-
+#include <wx/menu.h>
+#include <wx/panel.h>
+#include <wx/textctrl.h>
+#include <wx/combobox.h>
+#include "Logic.hpp"
+#include <wx/textctrl.h>
+#include <wx/file.h>
+#include <wx/textfile.h>
+#include <wx/wfstream.h>
 class MainFrame : public wxFrame
 {
+public:
+    MainFrame(const wxString &title);
+
 private:
     wxPanel *panel;
-    wxMenuBar *mbar;
-    wxMenu *mbarMore;
-    wxMenuItem *mbarFile;
-    wxMenuItem *mbarAbout;
-    wxMenuItem *mbarQuit;
-
-    wxTextCtrl *inputASCI;
-    wxTextCtrl *inputHEX;
-    wxBoxSizer *sizerFrame;
-
+    wxTextCtrl *inputUp;
+    wxTextCtrl *inputDown;
     wxComboBox *conversionFrom;
     wxComboBox *conversionTo;
+    wxMenuBar *mbar;
+    wxMenu *mbarMore;
 
-    void CreateControls();
-    void ShortcutSetup();
+    enum TextCtrlType
+    {
+        TEXT_CTRL_INPUT_UP,
+        TEXT_CTRL_INPUT_DOWN
+    };
+
+    TextCtrlType currentTextCtrl;
+    bool isUpdatingUp = false;
+    bool isUpdatingDown = false;
+    wxString lastValidASCI;
+    wxString lastValidHEX;
+
     void SetupLayout();
     void SetupMenuBar();
     void BindEvtHandler();
+    void OnSave(wxCommandEvent &);
+    void OnAbout(wxCommandEvent &);
+    void OnQuit(wxCommandEvent &);
+    void OnTextCtrlChange(wxCommandEvent &event);
+    void OnTextCtrlUpEnter(wxCommandEvent &event);
+    void OnTextCtrlDownEnter(wxCommandEvent &event);
+    void ShortcutSetup();
+    void OnConversionFromChanged(wxCommandEvent &event);
+    void OnConversionToChanged(wxCommandEvent &event);
+    void ConvertAndUpdate();
 
-    void OnSave(wxCommandEvent &WXUNUSED(event));
-    void OnAbout(wxCommandEvent &evt);
-    void OnQuit(wxCommandEvent &evt);
-
-    void OnTextCtrlAsciiEnter(wxCommandEvent &event);
-    void OnTextCtrlHexEnter(wxCommandEvent &event);
-
-    wxString lastValidASCI;
-    wxString lastValidHEX;
-    bool isUpdatingAscii = false;
-    bool isUpdatingHex = false;
-
-public:
-    MainFrame(const wxString &title);
+    // Define enum for custom event IDs (if needed)
+    enum ID
+    {
+        MBAR_SAVE = wxID_HIGHEST + 1,
+        MBAR_ABOUT,
+        MBAR_QUIT,
+        INPUT_DOWN,
+        INPUT_UP,
+        PANEL,
+        CB_UP,
+        CB_DOWN
+    };
 };
 
-#endif
+#endif // MAINFRAME_HPP
