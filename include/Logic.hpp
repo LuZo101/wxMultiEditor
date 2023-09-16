@@ -19,8 +19,8 @@ public:
     // Check if the given character is a valid ASCII input
     static bool IsASCIIInput(wxChar c);
 
-    static wxString ConvertNumberSystemUp(const wxString &from, const wxString &to, const wxString &input);
-    static wxString ConvertNumberSystemDown(const wxString &from, const wxString &to, const wxString &input);
+    static wxString ConvertNumberSystemUp(const wxString &from, const wxString &to, const wxString &inputUp);
+    static wxString ConvertNumberSystemDown(const wxString &from, const wxString &to, const wxString &inputDown);
 
     // Convert a number from one base to another
     static wxString BaseToBase(const wxString &input, int fromBase, int toBase);

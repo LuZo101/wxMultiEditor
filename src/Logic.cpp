@@ -7,38 +7,13 @@ struct PairComparator
         return a.first < b.first || (a.first == b.first && a.second < b.second);
     }
 };
-wxString Logic::ConvertNumberSystemUp(const wxString &from, const wxString &to, const wxString &input)
-{
-    if (from == to)
-    {
-        return input;
-    }
-
-    using ConverterFunc = std::function<wxString(const wxString &)>;
-
-    std::map<std::pair<wxString, wxString>, ConverterFunc, PairComparator> converters = {
-        // Implementieren Sie hier Ihre Konvertierungslogik von 'from' nach 'to'
-    };
-
-    auto it = converters.find({from, to});
-    return (it != converters.end()) ? it->second(input) : "";
+wxString Logic::ConvertNumberSystemUp(const wxString &from, const wxString &to, const wxString &inputUp)
+{    return ConvertNumberSystem(inputUp, from, to);
 }
 
-wxString Logic::ConvertNumberSystemDown(const wxString &to, const wxString &from, const wxString &input)
+wxString Logic::ConvertNumberSystemDown(const wxString &to, const wxString &from, const wxString &inputDown)
 {
-    if (from == to)
-    {
-        return input;
-    }
-
-    using ConverterFunc = std::function<wxString(const wxString &)>;
-
-    std::map<std::pair<wxString, wxString>, ConverterFunc, PairComparator> converters = {
-        // Implementieren Sie hier Ihre Konvertierungslogik von 'from' nach 'to'
-    };
-
-    auto it = converters.find({from, to});
-    return (it != converters.end()) ? it->second(input) : "";
+     return ConvertNumberSystem(inputDown, from, to);
 }
 
 wxString Logic::ConvertNumberSystem(const wxString &input, const wxString &from, const wxString &to)

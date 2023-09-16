@@ -23,14 +23,14 @@ void MainFrame::SetupLayout()
     inputUp->SetFont(font);
 
     // Create "Input Down" text control, set its font, and add a default value
-    inputDown = new wxTextCtrl(panel, INPUT_DOWN, "Your HEX Code here", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+    inputDown = new wxTextCtrl(panel, INPUT_DOWN, "Your DEC Code here", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
     inputDown->SetFont(font);
 
     // Create a vertical box sizer for the ComboBoxes and text controls
     wxBoxSizer *sizerFrame = new wxBoxSizer(wxVERTICAL);
 
     // Create the "From" ComboBox
-    wxString conversionOptions[] = {"ASCII", "HEX", "DEC", "BIN", "OCT"};
+    wxString conversionOptions[] = {"ASCII", "DEC", "BIN", "OCT", "HEX"};
     conversionFrom = new wxComboBox(panel, wxID_ANY, conversionOptions[0], wxDefaultPosition, wxDefaultSize, WXSIZEOF(conversionOptions), conversionOptions, wxCB_DROPDOWN);
 
     // Create the "To" ComboBox
@@ -65,14 +65,12 @@ void MainFrame::BindEvtHandler()
     // Bind wxEVT_TEXT to a single event handler for all TextCtrl elements
     inputUp->Bind(wxEVT_TEXT, &MainFrame::OnTextCtrlChange, this, INPUT_UP);
     inputDown->Bind(wxEVT_TEXT, &MainFrame::OnTextCtrlChange, this, INPUT_DOWN);
+    conversionFrom->SetSelection(0); // Wähle den ersten Eintrag aus (z. B. "ASCII") als Standardwert.
+    conversionTo->SetSelection(1);   // Wähle den zweiten Eintrag aus (z. B. "HEX") als Standardwert.
 
     Bind(wxEVT_MENU, &MainFrame::OnSave, this, ID::MBAR_SAVE);
     Bind(wxEVT_MENU, &MainFrame::OnAbout, this, ID::MBAR_ABOUT);
     Bind(wxEVT_MENU, &MainFrame::OnQuit, this, ID::MBAR_QUIT);
-
-    // Bind wxEVT_COMBOBOX for conversionFrom and conversionTo
-    conversionFrom->Bind(wxEVT_COMBOBOX, &MainFrame::OnConversionFromChanged, this, CB_UP);
-    conversionTo->Bind(wxEVT_COMBOBOX, &MainFrame::OnConversionToChanged, this, CB_DOWN);
 }
 void MainFrame::OnSave(wxCommandEvent &)
 {
@@ -232,12 +230,10 @@ void MainFrame::OnConversionToChanged(wxCommandEvent &event)
 }
 void MainFrame::ConvertAndUpdate()
 {
-    Logic logic;
-
     wxString from = conversionFrom->GetStringSelection();
     wxString to = conversionTo->GetStringSelection();
-    wxString input;
-    wxString output;
+
+    wxString input, output;
 
     if (currentTextCtrl == TEXT_CTRL_INPUT_UP)
     {
@@ -248,14 +244,15 @@ void MainFrame::ConvertAndUpdate()
         input = inputDown->GetValue();
     }
 
+    Logic logic;
     output = logic.ConvertNumberSystem(input, from, to);
 
     if (currentTextCtrl == TEXT_CTRL_INPUT_UP)
     {
-        inputDown->SetValue(output);
+        inputDown->ChangeValue(output);
     }
     else if (currentTextCtrl == TEXT_CTRL_INPUT_DOWN)
     {
-        inputUp->SetValue(output);
+        inputUp->ChangeValue(output);
     }
 }
