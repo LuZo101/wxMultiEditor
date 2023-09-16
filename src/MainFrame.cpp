@@ -9,7 +9,6 @@ MainFrame::MainFrame(const wxString &title) : wxFrame(nullptr, wxID_ANY, title)
     SetupMenuBar();
     BindEvtHandler();
 }
-
 void MainFrame::SetupLayout()
 {
     // Create and set up the panel
@@ -20,11 +19,11 @@ void MainFrame::SetupLayout()
     wxFont font(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 
     // Create "Input Up" text control, set its font, and add a default value
-    inputUp = new wxTextCtrl(panel, INPUT_UP, "Your ASCII Code here");
+    inputUp = new wxTextCtrl(panel, INPUT_UP, "Your ASCII Code here", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
     inputUp->SetFont(font);
 
     // Create "Input Down" text control, set its font, and add a default value
-    inputDown = new wxTextCtrl(panel, INPUT_DOWN, "Your HEX Code here");
+    inputDown = new wxTextCtrl(panel, INPUT_DOWN, "Your HEX Code here", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
     inputDown->SetFont(font);
 
     // Create a vertical box sizer for the ComboBoxes and text controls
@@ -48,7 +47,6 @@ void MainFrame::SetupLayout()
     // Set the sizer for the panel and adjust its size to fit the contents
     panel->SetSizerAndFit(sizerFrame);
 }
-
 void MainFrame::SetupMenuBar()
 {
     mbar = new wxMenuBar();
@@ -73,10 +71,9 @@ void MainFrame::BindEvtHandler()
     Bind(wxEVT_MENU, &MainFrame::OnQuit, this, ID::MBAR_QUIT);
 
     // Bind wxEVT_COMBOBOX for conversionFrom and conversionTo
-    conversionFrom->Bind(wxEVT_COMBOBOX, &MainFrame::OnConversionFromChanged, this);
-    conversionTo->Bind(wxEVT_COMBOBOX, &MainFrame::OnConversionToChanged, this);
+    conversionFrom->Bind(wxEVT_COMBOBOX, &MainFrame::OnConversionFromChanged, this, CB_UP);
+    conversionTo->Bind(wxEVT_COMBOBOX, &MainFrame::OnConversionToChanged, this, CB_DOWN);
 }
-
 void MainFrame::OnSave(wxCommandEvent &)
 {
     wxFileDialog saveFileDialog(this, _("Save MD file"), "", "", "MARKDOWN (*.md)|*.md", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
@@ -108,140 +105,105 @@ void MainFrame::OnSave(wxCommandEvent &)
         wxString to = conversionTo->GetStringSelection();
 
         // Passen Sie den Aufruf von Logic::FormatData an, um die zusätzlichen Parameter zu übergeben
-        wxString formattedContent = Logic::FormatData(inputUData, inputDData, from, to);
+        Logic logic;
 
+        wxString formattedContent = logic.FormatData(inputUData, inputDData, from, to);
         // Hier sollte der Text in die Datei geschrieben werden
         wxFileOutputStream output_stream(filePath);
         wxTextOutputStream textStream(output_stream);
         textStream << formattedContent;
     }
 }
-
 void MainFrame::OnAbout(wxCommandEvent &)
 {
     wxMessageDialog dialog(this, "wxEditor, transform ASCII to HEX, DEZ, BIN\nby LuZo101", "About this Program", wxICON_QUESTION);
     dialog.ShowModal();
 }
-
 void MainFrame::OnQuit(wxCommandEvent &)
 {
     Close(true);
 }
-
 void MainFrame::OnTextCtrlChange(wxCommandEvent &event)
 {
     wxTextCtrl *sourceCtrl = wxDynamicCast(event.GetEventObject(), wxTextCtrl);
 
     if (sourceCtrl)
     {
-        if (sourceCtrl == inputUp)
+        if (sourceCtrl == inputUp && !isUpdatingDown)
         {
-            currentTextCtrl = TextCtrlType::TEXT_CTRL_INPUT_UP;
-            OnTextCtrlUpEnter(event);
+            isUpdatingUp = true;
+            ConvertAndUpdate();
+            isUpdatingUp = false;
         }
-        else if (sourceCtrl == inputDown)
+        else if (sourceCtrl == inputDown && !isUpdatingUp)
         {
-            currentTextCtrl = TextCtrlType::TEXT_CTRL_INPUT_DOWN;
-            OnTextCtrlDownEnter(event);
+            isUpdatingDown = true;
+            ConvertAndUpdate();
+            isUpdatingDown = false;
         }
     }
-    wxString text = sourceCtrl->GetValue();
     event.Skip();
+}
+
+void MainFrame::UpdateValues(const wxString &input, const wxString &from, const wxString &to, wxTextCtrl *inputToUpdate, wxString &lastValidInput, wxString &lastValidOutput)
+{
+    Logic logic;
+
+    wxString convertedValue;
+    if (inputToUpdate == inputUp)
+    {
+        convertedValue = logic.ConvertNumberSystemUp(input, from, to);
+    }
+    else
+    {
+        convertedValue = logic.ConvertNumberSystemDown(input, from, to);
+    }
+    wxLogMessage("Conversion: From: %s, To: %s, Input: %s, Output: %s", from, to, input, convertedValue);
+
+    if (!convertedValue.IsEmpty())
+    {
+        inputToUpdate->ChangeValue(convertedValue);
+        lastValidInput = input;
+        lastValidOutput = convertedValue;
+    }
+    else
+    {
+        inputToUpdate->ChangeValue(lastValidInput);
+    }
 }
 
 void MainFrame::OnTextCtrlUpEnter(wxCommandEvent &event)
 {
-    if (!isUpdatingDown)
-    {
-        isUpdatingUp = true;
+    if (isUpdatingDown)
+        return;
 
-        wxString from = conversionFrom->GetStringSelection();
-        wxString to = conversionTo->GetStringSelection();
+    isUpdatingUp = true;
 
-        wxString upText = inputUp->GetValue();
-        wxString downValue;
+    wxString from = conversionFrom->GetStringSelection();
+    wxString to = conversionTo->GetStringSelection();
+    wxString upText = inputUp->GetValue();
 
-        if (from == "ASCII" && to == "HEX")
-        {
-            downValue = Logic::StringToHex(upText);
-        }
-        else if (from == "ASCII" && to == "DEC")
-        {
-            downValue = Logic::StringToDec(upText);
-        }
-        else if (from == "ASCII" && to == "BIN")
-        {
-            downValue = Logic::StringToBin(upText);
-        }
-        else if (from == "ASCII" && to == "OCT")
-        {
-            downValue = Logic::StringToOct(upText);
-        }
-        // ... (fügen Sie hier weitere Kombinationen hinzu)
+    UpdateValues(upText, from, to, inputDown, lastValidASCI, lastValidHEX);
 
-        if (!downValue.IsEmpty())
-        {
-            inputDown->ChangeValue(downValue);
-            lastValidASCI = upText;
-            lastValidHEX = downValue; // Sie sollten hier auch andere lastValid Variablen entsprechend aktualisieren
-        }
-        else
-        {
-            inputUp->ChangeValue(lastValidASCI);
-        }
-
-        isUpdatingUp = false;
-    }
+    isUpdatingUp = false;
     event.Skip();
 }
-
 void MainFrame::OnTextCtrlDownEnter(wxCommandEvent &event)
 {
-    if (!isUpdatingUp)
-    {
-        isUpdatingDown = true;
+    if (isUpdatingUp)
+        return;
 
-        wxString from = conversionFrom->GetStringSelection();
-        wxString to = conversionTo->GetStringSelection();
+    isUpdatingDown = true;
 
-        wxString downText = inputDown->GetValue();
-        wxString upValue;
+    wxString from = conversionTo->GetStringSelection(); // Hier habe ich die Zuweisungen angepasst
+    wxString to = conversionFrom->GetStringSelection(); // Hier habe ich die Zuweisungen angepasst
+    wxString downText = inputDown->GetValue();
 
-        if (from == "HEX" && to == "ASCII")
-        {
-            upValue = Logic::HexToString(downText);
-        }
-        else if (from == "DEC" && to == "ASCII")
-        {
-            upValue = Logic::DecToString(downText);
-        }
-        else if (from == "BIN" && to == "ASCII")
-        {
-            upValue = Logic::BinToString(downText);
-        }
-        else if (from == "OCT" && to == "ASCII")
-        {
-            upValue = Logic::OctToString(downText);
-        }
-        // ... (fügen Sie hier weitere Kombinationen hinzu)
+    UpdateValues(downText, from, to, inputUp, lastValidHEX, lastValidASCI);
 
-        if (!upValue.IsEmpty())
-        {
-            inputUp->ChangeValue(upValue);
-            lastValidASCI = upValue; // Sie sollten hier auch andere lastValid Variablen entsprechend aktualisieren
-            lastValidHEX = downText;
-        }
-        else
-        {
-            wxMessageBox("Invalid input!", "Error", wxOK | wxICON_ERROR);
-            inputDown->ChangeValue(lastValidHEX); // Sie sollten hier auch andere lastValid Variablen entsprechend aktualisieren
-        }
-
-        isUpdatingDown = false;
-    }
+    isUpdatingDown = false;
     event.Skip();
 }
-
 void MainFrame::ShortcutSetup()
 {
     wxAcceleratorEntry entries[2];
@@ -259,7 +221,6 @@ void MainFrame::OnConversionFromChanged(wxCommandEvent &event)
 
     ConvertAndUpdate();
 }
-
 void MainFrame::OnConversionToChanged(wxCommandEvent &event)
 {
     wxString from = conversionFrom->GetStringSelection();
@@ -271,40 +232,30 @@ void MainFrame::OnConversionToChanged(wxCommandEvent &event)
 }
 void MainFrame::ConvertAndUpdate()
 {
+    Logic logic;
+
     wxString from = conversionFrom->GetStringSelection();
     wxString to = conversionTo->GetStringSelection();
-
-    // Debugging-Ausgaben
-    wxLogMessage("From: %s, To: %s", from, to);
-
     wxString input;
     wxString output;
 
-    if (from == "ASCII")
+    if (currentTextCtrl == TEXT_CTRL_INPUT_UP)
     {
         input = inputUp->GetValue();
     }
-    else if (from == "HEX")
+    else if (currentTextCtrl == TEXT_CTRL_INPUT_DOWN)
     {
         input = inputDown->GetValue();
     }
 
-    // Debugging-Ausgaben
-    wxLogMessage("Input: %s", input);
+    output = logic.ConvertNumberSystem(input, from, to);
 
-    // Verwenden Sie die ConvertNumberSystem-Funktion, um die Konvertierung durchzuführen
-    output = Logic::ConvertNumberSystem(input, from, to);
-
-    // Debugging-Ausgaben
-    wxLogMessage("Output: %s", output);
-
-    if (to == "ASCII")
-    {
-        inputUp->SetValue(output);
-    }
-    else if (to == "HEX")
+    if (currentTextCtrl == TEXT_CTRL_INPUT_UP)
     {
         inputDown->SetValue(output);
     }
+    else if (currentTextCtrl == TEXT_CTRL_INPUT_DOWN)
+    {
+        inputUp->SetValue(output);
+    }
 }
-

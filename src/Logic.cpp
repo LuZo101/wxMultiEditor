@@ -7,6 +7,39 @@ struct PairComparator
         return a.first < b.first || (a.first == b.first && a.second < b.second);
     }
 };
+wxString Logic::ConvertNumberSystemUp(const wxString &from, const wxString &to, const wxString &input)
+{
+    if (from == to)
+    {
+        return input;
+    }
+
+    using ConverterFunc = std::function<wxString(const wxString &)>;
+
+    std::map<std::pair<wxString, wxString>, ConverterFunc, PairComparator> converters = {
+        // Implementieren Sie hier Ihre Konvertierungslogik von 'from' nach 'to'
+    };
+
+    auto it = converters.find({from, to});
+    return (it != converters.end()) ? it->second(input) : "";
+}
+
+wxString Logic::ConvertNumberSystemDown(const wxString &to, const wxString &from, const wxString &input)
+{
+    if (from == to)
+    {
+        return input;
+    }
+
+    using ConverterFunc = std::function<wxString(const wxString &)>;
+
+    std::map<std::pair<wxString, wxString>, ConverterFunc, PairComparator> converters = {
+        // Implementieren Sie hier Ihre Konvertierungslogik von 'from' nach 'to'
+    };
+
+    auto it = converters.find({from, to});
+    return (it != converters.end()) ? it->second(input) : "";
+}
 
 wxString Logic::ConvertNumberSystem(const wxString &input, const wxString &from, const wxString &to)
 {
@@ -16,6 +49,7 @@ wxString Logic::ConvertNumberSystem(const wxString &input, const wxString &from,
     }
 
     using ConverterFunc = std::function<wxString(const wxString &)>;
+
     std::map<std::pair<wxString, wxString>, ConverterFunc, PairComparator> converters = {
         {{"ASCII", "HEX"}, [](const wxString &s) -> wxString
          { return StringToHex(s); }},
@@ -74,7 +108,6 @@ wxString Logic::FormatData(const wxString &inputUData, const wxString &inputDDat
     return formattedData;
 }
 
-
 wxString Logic::BaseToBase(const wxString &input, int fromBase, int toBase)
 {
     long value;
@@ -130,8 +163,6 @@ wxString Logic::HexToString(const wxString &input)
     }
     return text;
 }
-
-
 
 wxString Logic::StringToDec(const wxString &input)
 {

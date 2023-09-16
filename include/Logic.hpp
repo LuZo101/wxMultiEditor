@@ -1,45 +1,56 @@
 #ifndef LOGIC_HPP
 #define LOGIC_HPP
 
-#include <wx/wx.h>
+#include <wx/string.h>
 #include <wx/tokenzr.h>
+#include <wx/log.h>
 #include <map>
 #include <functional>
+
 class Logic
 {
 public:
+    // Convert the number system based on the given input, source format, and target format
     static wxString ConvertNumberSystem(const wxString &input, const wxString &from, const wxString &to);
-    static wxString DecToBin(const wxString &dec);
-    static wxString BinToDec(const wxString &bin);
-    static wxString DecToOct(const wxString &dec);
-    static wxString OctToDec(const wxString &oct);
-    static wxString HexToBin(const wxString &hex);
-    static wxString BinToHex(const wxString &bin);
-    static wxString StringToDec(const wxString &input);
-    static wxString BaseToBase(const wxString &input, int fromBase, int toBase);
-    static wxString StringToHex(const wxString &input);
-    static wxString HexToString(const wxString &input);
-    static wxString StringToBin(const wxString &input);
-    static wxString StringToOct(const wxString &input);
-    static wxString DecToString(const wxString &dec);
-    static wxString BinToString(const wxString &bin);
-    static wxString OctToString(const wxString &oct);
+
+    // Format the data based on the given input data, source format, and target format
     static wxString FormatData(const wxString &inputUData, const wxString &inputDData, const wxString &from, const wxString &to);
 
+    // Check if the given character is a valid ASCII input
     static bool IsASCIIInput(wxChar c);
-    static bool IsHexInput(const wxString &input);
 
-private:
-    struct PairComparator
-    {
-        bool operator()(const std::pair<wxString, wxString> &a, const std::pair<wxString, wxString> &b) const
-        {
-            return a.first < b.first || (a.first == b.first && a.second < b.second);
-        }
-    };
+    static wxString ConvertNumberSystemUp(const wxString &from, const wxString &to, const wxString &input);
+    static wxString ConvertNumberSystemDown(const wxString &from, const wxString &to, const wxString &input);
 
-    using ConvertNumberSystemFunc = std::function<wxString(const wxString &)>;
-    std::map<std::pair<wxString, wxString>, ConvertNumberSystemFunc, PairComparator> converters;
+    // Convert a number from one base to another
+    static wxString BaseToBase(const wxString &input, int fromBase, int toBase);
+
+    // Convert a number to a specific base
+    static  wxString ConvertBase(long value, int toBase);
+
+    // Convert a string to its hexadecimal representation
+    static wxString StringToHex(const wxString &input);
+
+    // Convert a hexadecimal string to its string representation
+    static wxString HexToString(const wxString &input);
+
+    // Convert a string to its decimal representation
+    static wxString StringToDec(const wxString &input);
+
+    // Convert a string to its binary representation
+    static wxString StringToBin(const wxString &input);
+
+    // Convert a string to its octal representation
+    static wxString StringToOct(const wxString &input);
+
+    // Convert a decimal string to its string representation
+    static wxString DecToString(const wxString &dec);
+
+    // Convert a binary string to its string representation
+    static wxString BinToString(const wxString &bin);
+
+    // Convert an octal string to its string representation
+    static wxString OctToString(const wxString &oct);
 };
 
 #endif // LOGIC_HPP

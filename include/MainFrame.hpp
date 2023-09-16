@@ -15,6 +15,24 @@ class MainFrame : public wxFrame
 {
 public:
     MainFrame(const wxString &title);
+    Logic logic;
+
+    enum TextCtrlType
+    {
+        TEXT_CTRL_INPUT_UP,
+        TEXT_CTRL_INPUT_DOWN
+    };
+    enum ID
+    {
+        MBAR_SAVE = wxID_HIGHEST + 1,
+        MBAR_ABOUT,
+        MBAR_QUIT,
+        INPUT_DOWN,
+        INPUT_UP,
+        PANEL,
+        CB_UP,
+        CB_DOWN
+    };
 
 private:
     wxPanel *panel;
@@ -24,12 +42,6 @@ private:
     wxComboBox *conversionTo;
     wxMenuBar *mbar;
     wxMenu *mbarMore;
-
-    enum TextCtrlType
-    {
-        TEXT_CTRL_INPUT_UP,
-        TEXT_CTRL_INPUT_DOWN
-    };
 
     TextCtrlType currentTextCtrl;
     bool isUpdatingUp = false;
@@ -44,6 +56,7 @@ private:
     void OnAbout(wxCommandEvent &);
     void OnQuit(wxCommandEvent &);
     void OnTextCtrlChange(wxCommandEvent &event);
+    void UpdateValues(const wxString &input, const wxString &from, const wxString &to, wxTextCtrl *inputToUpdate, wxString &lastValidInput, wxString &lastValidOutput);
     void OnTextCtrlUpEnter(wxCommandEvent &event);
     void OnTextCtrlDownEnter(wxCommandEvent &event);
     void ShortcutSetup();
@@ -52,17 +65,6 @@ private:
     void ConvertAndUpdate();
 
     // Define enum for custom event IDs (if needed)
-    enum ID
-    {
-        MBAR_SAVE = wxID_HIGHEST + 1,
-        MBAR_ABOUT,
-        MBAR_QUIT,
-        INPUT_DOWN,
-        INPUT_UP,
-        PANEL,
-        CB_UP,
-        CB_DOWN
-    };
 };
 
 #endif // MAINFRAME_HPP
