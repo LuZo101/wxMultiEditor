@@ -2,14 +2,13 @@
 #include "Logic.hpp"
 #include <wx/filedlg.h>
 #include <wx/txtstrm.h>
-
+#include <wx/file.h>
 MainFrame::MainFrame(const wxString &title) : wxFrame(nullptr, wxID_ANY, title)
 {
     SetupLayout();
     SetupMenuBar();
     BindEvtHandler();
 }
-// Set up the main layout of the frame
 void MainFrame::SetupLayout()
 {
     // Create and set up the panel
@@ -19,39 +18,35 @@ void MainFrame::SetupLayout()
     // Define the font for the text controls
     wxFont font(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 
-    // Create ASCII input text control, set its font, and add a default value
-    inputASCI = new wxTextCtrl(panel, INPUT_ASCII, "Your ASCII Code here");
-    inputASCI->SetFont(font);
+    // Create "Input Up" text control, set its font, and add a default value
+    inputUp = new wxTextCtrl(panel, INPUT_UP, "Your ASCII Code here", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+    inputUp->SetFont(font);
 
-    // Create HEX input text control, set its font, and add a default value
-    inputHEX = new wxTextCtrl(panel, INPUT_HEX, "Your HEX Code here");
-    inputHEX->SetFont(font);
+    // Create "Input Down" text control, set its font, and add a default value
+    inputDown = new wxTextCtrl(panel, INPUT_DOWN, "Your DEC Code here", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+    inputDown->SetFont(font);
 
-    // Create a vertical box sizer for the Comboboxes and text controls
+    // Create a vertical box sizer for the ComboBoxes and text controls
     wxBoxSizer *sizerFrame = new wxBoxSizer(wxVERTICAL);
 
-    // Create the "From" Combobox
-    wxString conversionOptionsFrom[] = {"ASCII", "HEX", "DEC", "BIN", "OCT"};
-    conversionFrom = new wxComboBox(panel, wxID_ANY, conversionOptionsFrom[0], wxDefaultPosition, wxDefaultSize, WXSIZEOF(conversionOptionsFrom), conversionOptionsFrom, wxCB_DROPDOWN);
+    // Create the "From" ComboBox
+    wxString conversionOptions[] = {"ASCII", "DEC", "BIN", "OCT", "HEX"};
+    conversionFrom = new wxComboBox(panel, wxID_ANY, conversionOptions[0], wxDefaultPosition, wxDefaultSize, WXSIZEOF(conversionOptions), conversionOptions, wxCB_DROPDOWN);
 
-    // Create the "To" Combobox
-    wxString conversionOptionsTo[] = {"ASCII", "HEX", "DEC", "BIN", "OCT"};
-    conversionTo = new wxComboBox(panel, wxID_ANY, conversionOptionsTo[1], wxDefaultPosition, wxDefaultSize, WXSIZEOF(conversionOptionsTo), conversionOptionsTo, wxCB_DROPDOWN);
+    // Create the "To" ComboBox
+    conversionTo = new wxComboBox(panel, wxID_ANY, conversionOptions[1], wxDefaultPosition, wxDefaultSize, WXSIZEOF(conversionOptions), conversionOptions, wxCB_DROPDOWN);
 
-    // Add the "From" Combobox under the ASCII input
-    sizerFrame->Add(inputASCI, 1, wxEXPAND | wxALL, 5);
+    // Add the "Input Up" text control and "From" ComboBox
+    sizerFrame->Add(inputUp, 1, wxEXPAND | wxALL, 5);
     sizerFrame->Add(conversionFrom, 0, wxEXPAND | wxALL, 5);
 
-    // Add the "To" Combobox under the HEX input
-    sizerFrame->Add(inputHEX, 1, wxEXPAND | wxALL, 5);
+    // Add the "Input Down" text control and "To" ComboBox
+    sizerFrame->Add(inputDown, 1, wxEXPAND | wxALL, 5);
     sizerFrame->Add(conversionTo, 0, wxEXPAND | wxALL, 5);
 
     // Set the sizer for the panel and adjust its size to fit the contents
     panel->SetSizerAndFit(sizerFrame);
 }
-
-
-// Set up the menu bar
 void MainFrame::SetupMenuBar()
 {
     mbar = new wxMenuBar();
@@ -65,16 +60,17 @@ void MainFrame::SetupMenuBar()
     SetMenuBar(mbar);
     ShortcutSetup();
 }
-
-// Bind events to their handlers
 void MainFrame::BindEvtHandler()
 {
+    // Bind wxEVT_TEXT to a single event handler for all TextCtrl elements
+    inputUp->Bind(wxEVT_TEXT, &MainFrame::OnTextCtrlChange, this, INPUT_UP);
+    inputDown->Bind(wxEVT_TEXT, &MainFrame::OnTextCtrlChange, this, INPUT_DOWN);
+    conversionFrom->SetSelection(0); // Wähle den ersten Eintrag aus (z. B. "ASCII") als Standardwert.
+    conversionTo->SetSelection(1);   // Wähle den zweiten Eintrag aus (z. B. "HEX") als Standardwert.
+
     Bind(wxEVT_MENU, &MainFrame::OnSave, this, ID::MBAR_SAVE);
     Bind(wxEVT_MENU, &MainFrame::OnAbout, this, ID::MBAR_ABOUT);
     Bind(wxEVT_MENU, &MainFrame::OnQuit, this, ID::MBAR_QUIT);
-
-    inputASCI->Bind(wxEVT_TEXT, &MainFrame::OnTextCtrlAsciiEnter, this, INPUT_ASCII);
-    inputHEX->Bind(wxEVT_TEXT, &MainFrame::OnTextCtrlHexEnter, this, INPUT_HEX);
 }
 void MainFrame::OnSave(wxCommandEvent &)
 {
@@ -82,85 +78,143 @@ void MainFrame::OnSave(wxCommandEvent &)
 
     if (saveFileDialog.ShowModal() != wxID_CANCEL)
     {
-        wxFileOutputStream output_stream(saveFileDialog.GetPath());
-        if (!output_stream.IsOk())
+        // Hier die Konvertierung von wxString zu std::string durchführen
+        std::string filePath = std::string(saveFileDialog.GetPath());
+
+        wxTextFile textFile;
+        if (textFile.Create(filePath))
         {
-            wxLogError("Cannot save current contents in file '%s'.", saveFileDialog.GetPath());
-            return;
+            for (int i = 0; i < 10; i++) // Beispiel: Schreibe 10 Zeilen in die Datei
+            {
+                textFile.AddLine(wxString::Format("Zeile %d", i));
+            }
+            textFile.Write();
+        }
+        else
+        {
+            wxLogError("Fehler beim Erstellen der Datei.");
         }
 
-        wxString asciiData = inputASCI->GetValue();
-        wxString hexData = inputHEX->GetValue();
+        wxString inputUData = inputUp->GetValue();
+        wxString inputDData = inputDown->GetValue();
 
-        wxString formattedContent = Logic::FormatData(asciiData, hexData);
+        // Holen Sie die aktuellen Werte der ComboBoxes
+        wxString from = conversionFrom->GetStringSelection();
+        wxString to = conversionTo->GetStringSelection();
 
+        // Passen Sie den Aufruf von Logic::FormatData an, um die zusätzlichen Parameter zu übergeben
+        Logic logic;
+
+        Logic::ConversionResult conversionResult = logic.FormatData(inputUData, inputDData, from, to);
+
+        // Hier sollte der Text in die Datei geschrieben werden
+        wxFileOutputStream output_stream(filePath);
         wxTextOutputStream textStream(output_stream);
-        textStream << formattedContent;
+
+        // Schreibe den formatierten Inhalt in die Datei
+        textStream << "Input:\n" << conversionResult.input << "\n\nOutput:\n" << conversionResult.output;
+
+        if (output_stream.IsOk())
+        {
+            wxLogMessage("Datei erfolgreich gespeichert: %s", filePath.c_str());
+        }
+        else
+        {
+            wxLogError("Fehler beim Schreiben in die Datei.");
+        }
     }
 }
 
-// About event handler
 void MainFrame::OnAbout(wxCommandEvent &)
 {
     wxMessageDialog dialog(this, "wxEditor, transform ASCII to HEX, DEZ, BIN\nby LuZo101", "About this Program", wxICON_QUESTION);
     dialog.ShowModal();
 }
-
-// Quit event handler
 void MainFrame::OnQuit(wxCommandEvent &)
 {
     Close(true);
 }
-
-void MainFrame::OnTextCtrlAsciiEnter(wxCommandEvent &event)
+void MainFrame::OnTextCtrlChange(wxCommandEvent &event)
 {
-    if (!isUpdatingHex)
+    wxTextCtrl *sourceCtrl = wxDynamicCast(event.GetEventObject(), wxTextCtrl);
+
+    if (sourceCtrl)
     {
-        isUpdatingAscii = true;
-        wxString asciiText = inputASCI->GetValue();
-        wxString hexValue = Logic::StringToHex(asciiText);
-
-        if (!hexValue.IsEmpty()) // Check if the conversion was successful
+        if (sourceCtrl == inputUp && !isUpdatingDown)
         {
-            inputHEX->SetValue(hexValue);
-            lastValidASCI = asciiText; // Store the last valid ASCII input
-            lastValidHEX = hexValue;   // Store the corresponding HEX value
+            isUpdatingUp = true;
+            ConvertAndUpdate();
+            isUpdatingUp = false;
         }
-        else
+        else if (sourceCtrl == inputDown && !isUpdatingUp)
         {
-            inputASCI->SetValue(lastValidASCI); // Restore the last valid ASCII input
+            isUpdatingDown = true;
+            ConvertAndUpdate();
+            isUpdatingDown = false;
         }
-
-        isUpdatingAscii = false;
     }
     event.Skip();
 }
 
-void MainFrame::OnTextCtrlHexEnter(wxCommandEvent &event)
+void MainFrame::UpdateValues(const wxString &input, const wxString &from, const wxString &to, wxTextCtrl *inputToUpdate, wxString &lastValidInput, wxString &lastValidOutput)
 {
-    if (!isUpdatingAscii)
+    Logic logic;
+
+    wxString convertedValue;
+    if (inputToUpdate == inputUp)
     {
-        isUpdatingHex = true;
-        wxString hexText = inputHEX->GetValue();
-
-        if (Logic::IsHexInput(hexText))
-        {
-            wxString asciiValue = Logic::HexToString(hexText);
-            inputASCI->SetValue(asciiValue);
-            lastValidHEX = hexText;     // Store the last valid HEX input
-            lastValidASCI = asciiValue; // Store the corresponding ASCII value
-        }
-        else
-        {
-            wxMessageBox("Invalid HEX!", "Error", wxOK | wxICON_ERROR);
-            inputHEX->SetValue(lastValidHEX); // Restore the last valid HEX input
-        }
-
-        isUpdatingHex = false;
+        convertedValue = logic.ConvertNumberSystemUp(input, from, to);
     }
-    event.Skip();
+    else
+    {
+        convertedValue = logic.ConvertNumberSystemDown(input, from, to);
+    }
+    wxLogMessage("Conversion: From: %s, To: %s, Input: %s, Output: %s", from, to, input, convertedValue);
+
+    if (!convertedValue.IsEmpty())
+    {
+        inputToUpdate->ChangeValue(convertedValue);
+        lastValidInput = input;
+        lastValidOutput = convertedValue;
+    }
+    else
+    {
+        inputToUpdate->ChangeValue(lastValidInput);
+    }
 }
 
+void MainFrame::OnTextCtrlUpEnter(wxCommandEvent &event)
+{
+    if (isUpdatingDown)
+        return;
+
+    isUpdatingUp = true;
+
+    wxString from = conversionFrom->GetStringSelection();
+    wxString to = conversionTo->GetStringSelection();
+    wxString upText = inputUp->GetValue();
+
+    UpdateValues(upText, from, to, inputDown, lastValidASCI, lastValidHEX);
+
+    isUpdatingUp = false;
+    event.Skip();
+}
+void MainFrame::OnTextCtrlDownEnter(wxCommandEvent &event)
+{
+    if (isUpdatingUp)
+        return;
+
+    isUpdatingDown = true;
+
+    wxString from = conversionTo->GetStringSelection(); // Hier habe ich die Zuweisungen angepasst
+    wxString to = conversionFrom->GetStringSelection(); // Hier habe ich die Zuweisungen angepasst
+    wxString downText = inputDown->GetValue();
+
+    UpdateValues(downText, from, to, inputUp, lastValidHEX, lastValidASCI);
+
+    isUpdatingDown = false;
+    event.Skip();
+}
 void MainFrame::ShortcutSetup()
 {
     wxAcceleratorEntry entries[2];
@@ -168,4 +222,50 @@ void MainFrame::ShortcutSetup()
     entries[1].Set(wxACCEL_CTRL, (int)'Q', ID::MBAR_QUIT);
     wxAcceleratorTable accel(2, entries);
     SetAcceleratorTable(accel);
+}
+void MainFrame::OnConversionFromChanged(wxCommandEvent &event)
+{
+    wxString from = conversionFrom->GetStringSelection();
+    wxString to = conversionTo->GetStringSelection();
+
+    wxLogMessage("Conversion from changed: From: %s, To: %s", from, to);
+
+    ConvertAndUpdate();
+}
+void MainFrame::OnConversionToChanged(wxCommandEvent &event)
+{
+    wxString from = conversionFrom->GetStringSelection();
+    wxString to = conversionTo->GetStringSelection();
+
+    wxLogMessage("Conversion to changed: From: %s, To: %s", from, to);
+
+    ConvertAndUpdate();
+}
+void MainFrame::ConvertAndUpdate()
+{
+    wxString from = conversionFrom->GetStringSelection();
+    wxString to = conversionTo->GetStringSelection();
+
+    wxString input, output;
+
+    if (currentTextCtrl == TEXT_CTRL_INPUT_UP)
+    {
+        input = inputUp->GetValue();
+    }
+    else if (currentTextCtrl == TEXT_CTRL_INPUT_DOWN)
+    {
+        input = inputDown->GetValue();
+    }
+
+    Logic logic;
+    output = logic.ConvertNumberSystem(input, from, to);
+
+    if (currentTextCtrl == TEXT_CTRL_INPUT_UP)
+    {
+        inputDown->ChangeValue(output);
+    }
+    else if (currentTextCtrl == TEXT_CTRL_INPUT_DOWN)
+    {
+        inputUp->ChangeValue(output);
+    }
 }

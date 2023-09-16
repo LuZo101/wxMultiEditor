@@ -1,5 +1,5 @@
 # Set the minimum required version of CMake
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.27.1)
 
 # Define the project name
 project(MULTIEDITOR)
@@ -22,7 +22,7 @@ set(MAIN_APP_SOURCE_FILES
 add_executable(${PROJECT_NAME} ${MAIN_APP_SOURCE_FILES})
 
 # Link the main app with the wxWidgets libraries
-target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}  ${wxWidgets_LIBRARIES})
 
 # Set the output directory for the app's executable
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
