@@ -33,6 +33,8 @@ public:
         CB_UP,
         CB_DOWN
     };
+  
+
 
 private:
     wxPanel *panel;

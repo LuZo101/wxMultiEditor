@@ -10,12 +10,17 @@
 class Logic
 {
 public:
+    struct ConversionResult
+    {
+        wxString input;
+        wxString output;
+    };
     // Convert the number system based on the given input, source format, and target format
     static wxString ConvertNumberSystem(const wxString &input, const wxString &from, const wxString &to);
+        // Format the data based on the given input data, source format, and target format
 
-    // Format the data based on the given input data, source format, and target format
-    static wxString FormatData(const wxString &inputUData, const wxString &inputDData, const wxString &from, const wxString &to);
-
+    ConversionResult FormatData(const wxString &inputUData, const wxString &inputDData, const wxString &from, const wxString &to);
+  
     // Check if the given character is a valid ASCII input
     static bool IsASCIIInput(wxChar c);
 
@@ -26,7 +31,7 @@ public:
     static wxString BaseToBase(const wxString &input, int fromBase, int toBase);
 
     // Convert a number to a specific base
-    static  wxString ConvertBase(long value, int toBase);
+    static wxString ConvertBase(long value, int toBase);
 
     // Convert a string to its hexadecimal representation
     static wxString StringToHex(const wxString &input);

@@ -105,13 +105,26 @@ void MainFrame::OnSave(wxCommandEvent &)
         // Passen Sie den Aufruf von Logic::FormatData an, um die zusätzlichen Parameter zu übergeben
         Logic logic;
 
-        wxString formattedContent = logic.FormatData(inputUData, inputDData, from, to);
+        Logic::ConversionResult conversionResult = logic.FormatData(inputUData, inputDData, from, to);
+
         // Hier sollte der Text in die Datei geschrieben werden
         wxFileOutputStream output_stream(filePath);
         wxTextOutputStream textStream(output_stream);
-        textStream << formattedContent;
+
+        // Schreibe den formatierten Inhalt in die Datei
+        textStream << "Input:\n" << conversionResult.input << "\n\nOutput:\n" << conversionResult.output;
+
+        if (output_stream.IsOk())
+        {
+            wxLogMessage("Datei erfolgreich gespeichert: %s", filePath.c_str());
+        }
+        else
+        {
+            wxLogError("Fehler beim Schreiben in die Datei.");
+        }
     }
 }
+
 void MainFrame::OnAbout(wxCommandEvent &)
 {
     wxMessageDialog dialog(this, "wxEditor, transform ASCII to HEX, DEZ, BIN\nby LuZo101", "About this Program", wxICON_QUESTION);

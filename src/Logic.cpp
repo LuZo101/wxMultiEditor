@@ -8,12 +8,13 @@ struct PairComparator
     }
 };
 wxString Logic::ConvertNumberSystemUp(const wxString &from, const wxString &to, const wxString &inputUp)
-{    return ConvertNumberSystem(inputUp, from, to);
+{
+    return ConvertNumberSystem(inputUp, from, to);
 }
 
 wxString Logic::ConvertNumberSystemDown(const wxString &to, const wxString &from, const wxString &inputDown)
 {
-     return ConvertNumberSystem(inputDown, from, to);
+    return ConvertNumberSystem(inputDown, from, to);
 }
 
 wxString Logic::ConvertNumberSystem(const wxString &input, const wxString &from, const wxString &to)
@@ -59,29 +60,70 @@ wxString Logic::ConvertNumberSystem(const wxString &input, const wxString &from,
     auto it = converters.find({from, to});
     return (it != converters.end()) ? it->second(input) : "";
 }
-
-wxString Logic::FormatData(const wxString &inputUData, const wxString &inputDData, const wxString &from, const wxString &to)
+Logic::ConversionResult Logic::FormatData(const wxString &inputUData, const wxString &inputDData, const wxString &from, const wxString &to)
 {
-    wxString formattedData;
+    ConversionResult result;
 
-    // Hier kannst du deine Formatierungslogik implementieren
-    // Verwende die Eingabedaten (inputUData und inputDData), das Ursprungsformat (from) und das Zielformat (to), um die Daten zu formatieren.
-
-    // Beispiel:
-    if (from == "HEX" && to == "ASCII")
+    // Prüfe, ob das Ursprungsformat gleich dem Zielformat ist
+    if (from == to)
     {
-        // Implementiere die Umwandlung von HEX zu ASCII
-        formattedData = HexToString(inputUData);
+        // Wenn sie gleich sind, gibt es keine Konvertierung erforderlich
+        result.input = (from == "ASCII") ? inputUData : inputDData;
+        result.output = result.input;
     }
     else if (from == "ASCII" && to == "HEX")
     {
-        // Implementiere die Umwandlung von ASCII zu HEX
-        formattedData = StringToHex(inputUData);
+        // ASCII zu HEX konvertieren
+        result.input = inputUData;
+        result.output = StringToHex(inputUData);
+    }
+    else if (from == "HEX" && to == "ASCII")
+    {
+        // HEX zu ASCII konvertieren
+        result.input = inputUData;
+        result.output = HexToString(inputUData);
+    }
+    else if (from == "ASCII" && to == "DEC")
+    {
+        // ASCII zu DEC konvertieren
+        result.input = inputUData;
+        result.output = StringToDec(inputUData);
+    }
+    else if (from == "DEC" && to == "ASCII")
+    {
+        // DEC zu ASCII konvertieren
+        result.input = inputUData;
+        result.output = DecToString(inputUData);
+    }
+    else if (from == "ASCII" && to == "BIN")
+    {
+        // ASCII zu BIN konvertieren
+        result.input = inputUData;
+        result.output = StringToBin(inputUData);
+    }
+    else if (from == "BIN" && to == "ASCII")
+    {
+        // BIN zu ASCII konvertieren
+        result.input = inputUData;
+        result.output = BinToString(inputUData);
+    }
+    else if (from == "ASCII" && to == "OCT")
+    {
+        // ASCII zu OCT konvertieren
+        result.input = inputUData;
+        result.output = StringToOct(inputUData);
+    }
+    else if (from == "OCT" && to == "ASCII")
+    {
+        // OCT zu ASCII konvertieren
+        result.input = inputUData;
+        result.output = OctToString(inputUData);
     }
     // Füge weitere Formatierungsfälle hinzu, wie du sie benötigst.
 
-    return formattedData;
+    return result;
 }
+
 
 wxString Logic::BaseToBase(const wxString &input, int fromBase, int toBase)
 {
